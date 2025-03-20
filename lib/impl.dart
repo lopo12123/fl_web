@@ -1,4 +1,11 @@
 import 'dart:js_interop';
+import 'dart:js_interop_unsafe';
+
+import 'package:fl_web/log.dart';
+
+/// Register a method on the global context to call the method on the dart side from the js side.
+@JS('@fl.invokeMethod')
+external set invokeDart(JSFunction f);
 
 /// To invoke js handler from dart side, we should declare it here.
 @JS('@fl.generalHandler')
@@ -9,48 +16,92 @@ external void invokeJs(
   JSAny? response,
 );
 
-sealed class ResponseToJs<R extends JSAny?> {
+sealed class JSRequest<T, R extends JSAny?> {
   String get channelName;
 
   String get serialId;
 
-  const ResponseToJs();
+  T get argument;
 
-  void ok(R response) {
+  const JSRequest();
+
+  void success(R response) {
     invokeJs(channelName, serialId, null, response);
   }
 
-  void error(String error) {
+  void fail(String error) {
     invokeJs(channelName, serialId, error, null);
   }
 }
 
-class Ready extends ResponseToJs<Null> {
-  @override
-  final channelName = 'ready';
-
-  @override
-  final serialId = '';
-
-  const Ready();
-}
-
-class Echo extends ResponseToJs<JSAny?> {
+class EchoRequest extends JSRequest<JSAny?, JSAny?> {
   @override
   final channelName = 'echo';
 
   @override
   final String serialId;
 
-  const Echo(this.serialId);
+  @override
+  final JSAny? argument;
+
+  const EchoRequest(this.serialId, this.argument);
 }
 
-class Paper extends ResponseToJs<JSUint8Array> {
+// TODO: paper dto
+class PaperRequest extends JSRequest<Map<String, dynamic>, JSUint8Array> {
   @override
   final channelName = 'paper';
 
   @override
   final String serialId;
 
-  const Paper(this.serialId);
+  @override
+  final Map<String, dynamic> argument;
+
+  const PaperRequest(this.serialId, this.argument);
+}
+
+typedef JSRequestHandler = void Function(JSRequest request);
+
+abstract class FlWebImpl {
+  static JSRequestHandler? handler;
+
+  /// Delegate all js call here.
+  ///
+  /// Declare [args] as optional & nullable to avoid js call with no args or `null`/`undefined`.
+  static void delegate(String name, String serialId, [JSAny? args]) {
+    if (handler == null) {
+      LogImpl.warn('FLWeb is not ready yet, any calls will be ignored.');
+      return;
+    }
+
+    JSRequest? request;
+    switch (name) {
+      case 'echo':
+        request = EchoRequest(serialId, args);
+        break;
+      case 'paper':
+        request = PaperRequest(serialId, {});
+        break;
+      default:
+        LogImpl.warn('Unsupported channel name "$name" (serial id: $serialId)');
+    }
+
+    if (request != null) handler!(request);
+  }
+
+  /// A simple guard:
+  /// - Make sure `'@fl'` exists in the global context and is a [JSObject],
+  /// - If not (does not exist or is not a [JSObject]), set it to an empty object (`{}` in js).
+  static void guard() {
+    final r = globalContext['@fl'].isA<JSObject>();
+    if (!r) globalContext['@fl'] = JSObject();
+  }
+
+  static void initialize(void Function(JSRequest request) f) {
+    handler = f;
+    invokeDart = delegate.toJS;
+    LogImpl.log('initialized');
+    invokeJs('ready', '', null, null);
+  }
 }

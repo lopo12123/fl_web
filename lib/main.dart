@@ -3,23 +3,10 @@ import 'dart:js_interop_unsafe';
 import 'dart:typed_data';
 
 import 'package:fl_web/impl.dart';
-import 'package:fl_web/log.dart';
 import 'package:flutter/material.dart';
 
-/// Register a method on the global context to call the method on the dart side from the js side.
-@JS('@fl.invokeMethod')
-external set invokeDart(JSFunction f);
-
-/// A simple guard:
-/// - Make sure `'@fl'` exists in the global context and is a [JSObject],
-/// - If not (does not exist or is not a [JSObject]), set it to an empty object (`{}` in js).
-void guard() {
-  final r = globalContext['@fl'].isA<JSObject>();
-  if (!r) globalContext['@fl'] = JSObject();
-}
-
 void main() {
-  guard();
+  FlWebImpl.guard();
 
   runApp(const MyApp());
 }
@@ -48,19 +35,14 @@ class PhantomPage extends StatefulWidget {
 }
 
 class _PhantomPageState extends State<PhantomPage> {
-  /// Delegate all js call here.
-  ///
-  /// Declare [args] as optional & nullable to avoid js call with no args or `null`/`undefined`.
-  void callFromJs(String name, String serialId, [JSAny? args]) {
-    switch (name) {
-      case 'echo':
-        Echo(serialId).ok(args);
+  void jsRequestHandler(JSRequest request) async {
+    switch (request) {
+      case EchoRequest():
+        request.success(request.argument);
         break;
-      case 'paper':
-        Paper(serialId).ok(Uint8List(0).toJS);
+      case PaperRequest():
+        request.success(Uint8List(0).toJS);
         break;
-      default:
-        LogImpl.warn('Unsupported channel name "$name" (serial id: $serialId)');
     }
   }
 
@@ -68,10 +50,7 @@ class _PhantomPageState extends State<PhantomPage> {
   void initState() {
     super.initState();
 
-    invokeDart = callFromJs.toJS;
-    LogImpl.log('initialized');
-
-    const Ready().ok(null);
+    FlWebImpl.initialize(jsRequestHandler);
   }
 
   @override
