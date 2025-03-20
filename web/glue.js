@@ -1,13 +1,4 @@
-/**
- * @typedef {'ping' | 'share-card'} FLFnName
- */
-
-/**
- * thanks to [moki](https://github.com/ClearLuvMoki)
- *
- * @typedef {function(name: FLFnName, serialId: string, args: unknown): void} FLHandler
- */
-const mokiRand = (alphabet = "abcdefghijklmnopqrstuvwxyz", length = 10) => {
+const simpleRand = (alphabet = "abcdefghijklmnopqrstuvwxyz", length = 10) => {
     const alphabetLength = alphabet.length;
     let result = '';
     for (let i = 0; i < length; i++) {
@@ -19,52 +10,33 @@ const mokiRand = (alphabet = "abcdefghijklmnopqrstuvwxyz", length = 10) => {
 
 /**
  * interop object
- *
- * 1. inject 'handler' field by flutter app
- * 2. add handlers start with 'on' in js-side
- *
- * @private this should not be used or modified directly
- * @type {{handler: FLHandler}}
  */
 window['@fl'] = {
     /**
+     * DO NOT modify this since it will be called from dart side.
+     *
+     * @param channelName {string}
      * @param serialId {string}
-     * @param echo {Object}
+     * @param error {string|null}
+     * @param response {unknown}
      */
-    onPing(serialId, echo) {
-        console.log('resp::ping', serialId, echo)
+    generalHandler(channelName, serialId, error, response) {
+        if (error) {
+            console.error(channelName, serialId, error)
+        } else {
+            console.log(channelName, serialId, response)
+        }
     },
-    /**
-     * @param serialId {string}
-     * @param bytes {Uint8Array}
-     */
-    onFreeDrawCaptured(serialId, bytes) {
-        // console.log('resp::free-draw', serialId, bytes)
 
-        const url = URL.createObjectURL(new Blob([bytes], {type: 'image/png'}))
-        const a = document.createElement('a')
-        a.href = url
-        a.download = `${mokiRand()}.png`
-        a.click()
-        URL.revokeObjectURL(url)
-    },
     /**
+     * This is more of a phantom marker,
+     * the actual function will be set once dart is ready.
+     *
+     * @param channelName {string}
      * @param serialId {string}
-     * @param bytes {Uint8Array}
+     * @param arguments {unknown}
      */
-    onShareCardGenerated(serialId, bytes) {
-        console.log('resp::share-card', serialId, bytes)
-        // TODO: use it as you like
+    invokeMethod(channelName, serialId, arguments) {
+        // no-op
     }
-}
-
-
-/**
- * send message to flutter app
- * @param name {FLFnName}
- * @param serialId {string}
- * @param args {unknown}
- */
-window.callFL = (name, serialId, args) => {
-    // TODO
 }
