@@ -8,6 +8,7 @@ const simpleRand = (alphabet = "abcdefghijklmnopqrstuvwxyz", length = 10) => {
     return result;
 }
 
+// TODO: hide element behind page
 const createHostElement = () => {
     const hostEl = document.createElement('div')
     hostEl.style.position = 'absolute'
@@ -123,6 +124,9 @@ window['@fl'] = {
         return this._interact('paper', info)
     }
 }
+
+// DEV ONLY: auto launch
+setTimeout(() => window['@fl'].prelude(), 100)
 
 // Example:
 //
