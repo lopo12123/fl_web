@@ -81,7 +81,8 @@ abstract class FlWebImpl {
         request = EchoRequest(serialId, args);
         break;
       case 'paper':
-        request = PaperRequest(serialId, {});
+        final data = Map<String, dynamic>.from(args!.dartify() as Map);
+        request = PaperRequest(serialId, data);
         break;
       default:
         LogImpl.warn('Unsupported channel name "$name" (serial id: $serialId)');
