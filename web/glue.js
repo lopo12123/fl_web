@@ -40,3 +40,58 @@ window['@fl'] = {
         // no-op
     }
 }
+
+class Manager {
+    static #singleton = null
+
+    constructor() {
+        if (Manager.#singleton) {
+            return Manager.#singleton
+        }
+        Manager.#singleton = this
+    }
+
+    #app = null
+
+    _createHostEl() {
+        const hostEl = document.createElement('div')
+        hostEl.style.position = 'absolute'
+        // hostEl.style.zIndex = '-1'
+        hostEl.style.width = '100%'
+        hostEl.style.height = '100%'
+        return hostEl
+    }
+
+    /**
+     *
+     * @returns {Promise<void>}
+     */
+    prelude() {
+        const instance = this
+        return new Promise((resolve, reject) => {
+            try {
+                _flutter.loader.load({
+                    onEntrypointLoaded: async function onEntrypointLoaded(engineInitializer) {
+                        const engine = await engineInitializer.initializeEngine({
+                            multiViewEnabled: true, // Enables embedded mode.
+                        });
+                        const app = await engine.runApp();
+                        instance.#app = app;
+
+                        const el = instance._createHostEl()
+                        document.body.append(el)
+                        app.addView({
+                            hostElement: el
+                        })
+
+                        resolve()
+                    }
+                });
+            } catch (err) {
+                reject(err)
+            }
+        })
+    }
+}
+
+window['@fl'].manager = new Manager()
