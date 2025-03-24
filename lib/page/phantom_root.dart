@@ -20,7 +20,14 @@ class _PhantomRootPageState extends State<PhantomRootPage> {
         request.success(request.argument);
         break;
       case PaperRequest():
-        request.success(Uint8List(0).toJS);
+        final buffer = (await Navigator.of(context)
+                .pushNamed('paper-card-builder', arguments: request.argument))
+            as Uint8List?;
+        if (buffer == null) {
+          request.fail('No data');
+        } else {
+          request.success(buffer.toJS);
+        }
         break;
     }
   }
