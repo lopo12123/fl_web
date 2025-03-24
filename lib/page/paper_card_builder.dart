@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 
 class PaperCardBuilderPage extends StatefulWidget {
@@ -20,14 +22,15 @@ class _PaperCardBuilderState extends State<PaperCardBuilderPage> {
               final args = ModalRoute.of(context)?.settings.arguments;
               print('$args');
             },
-            child: Text('args'),
+            child: Text('print received args'),
           ),
           ElevatedButton(
             onPressed: () {
               // TODO
-              Navigator.of(context).pop(1);
+              Navigator.of(context)
+                  .pop(Uint8List.fromList([1, 2, 3, 4, 5, 6, 7, 8]));
             },
-            child: Text('pop'),
+            child: Text('back with sample data'),
           ),
         ],
       ),
