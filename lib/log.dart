@@ -9,6 +9,7 @@ external void consoleWarn(JSAny? object);
 @JS('console.error')
 external void consoleError(JSAny? object);
 
+/// directly log to console in browser
 abstract class LogImpl {
   static void log(Object object) {
     consoleLog(object.jsify());
