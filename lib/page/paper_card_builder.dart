@@ -41,6 +41,7 @@ class _PaperCardBuilderState extends State<PaperCardBuilderPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final args = ModalRoute.of(context)?.settings.arguments;
+    LogImpl.log('args is$args');
     if (args != null && args is Map) {
       _shareInfo = SharePaperDTO.fromJson(Map<String, dynamic>.from(args));
       _isChinese = _shareInfo.languageType == 0;
@@ -223,7 +224,6 @@ class _PaperCardBuilderState extends State<PaperCardBuilderPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               LayoutBuilder(builder: (_, constraints) {
-                final freeWidth = constraints.maxWidth - 40;
                 return Row(
                   children: [
                     ClipRRect(
@@ -242,8 +242,7 @@ class _PaperCardBuilderState extends State<PaperCardBuilderPage> {
                       ),
                     ),
                     const SizedBox(width: 4),
-                    ConstrainedBox(
-                      constraints: BoxConstraints(maxWidth: freeWidth),
+                    Expanded(
                       child: BadText(
                         _shareInfo.publicationEnName,
                         color: AppColors.grey10,
@@ -253,7 +252,6 @@ class _PaperCardBuilderState extends State<PaperCardBuilderPage> {
                         maxLines: 1,
                       ),
                     ),
-                    const Spacer(),
                   ],
                 );
               }),
@@ -264,7 +262,7 @@ class _PaperCardBuilderState extends State<PaperCardBuilderPage> {
                 cite: _shareInfo.citationNums,
               ),
               const SizedBox(height: 16),
-              PaperTitle.tight(
+              PaperTitle(
                 source: _shareInfo.enName,
                 translation: _shareInfo.zhName,
               ),

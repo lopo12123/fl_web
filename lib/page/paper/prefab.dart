@@ -4,125 +4,8 @@ import 'package:flutter/material.dart';
 import 'font.dart';
 import 'model.dart';
 
-class JournalFragment extends StatelessWidget {
-  final SharePaperDTO paper;
-
-  String get journalName => paper.publicationEnName;
-
-  String get journalSrc => paper.publicationCover;
-
-  String get impactFactor {
-    final v = paper.impactFactor;
-    return v == 0 ? '' : '(IF $v)';
-  }
-
-  const JournalFragment(this.paper, {super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (_, constraints) {
-      final freeWidth = constraints.maxWidth -
-          40 -
-          TextMeasureImpl.measure(
-            impactFactor,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w400,
-              fontFamily: AppFonts.pingFang,
-            ),
-          ).width;
-
-      return Row(
-        children: [
-          BohrJournalImage.round(
-            name: journalName,
-            radius: 14,
-            src: journalSrc,
-          ),
-          const SizedBox(width: 4),
-          ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: freeWidth),
-            child: BadText(
-              journalName,
-              color: AppColors.grey10,
-              fontWeight: FontWeight.w600,
-              fontSize: 12,
-              lineHeight: 14,
-              maxLines: 1,
-            ),
-          ),
-          const SizedBox(width: 4),
-          BadText(
-            impactFactor,
-            color: AppColors.grey10,
-            fontSize: 12,
-          ),
-          const Spacer(),
-        ],
-      );
-    });
-  }
-}
-
-class BohrJournalImage extends StatelessWidget {
-  static AssetImage _fallbackStrategy(String name) {
-    return const AssetImage('assets/image/cover0.png');
-  }
-
-  final double? width;
-  final double? height;
-
-  final double? radius;
-
-  /// 期刊名 - 用于计算默认展位图
-  final String name;
-
-  /// 图片地址
-  final String src;
-
-  Image get _fallback {
-    return Image(
-      image: _fallbackStrategy(name),
-      width: width,
-      height: height,
-      fit: radius == null ? BoxFit.contain : BoxFit.cover,
-    );
-  }
-
-  const BohrJournalImage({
-    super.key,
-    this.width,
-    this.height,
-    required this.name,
-    required this.src,
-  })  : assert(width != null || height != null),
-        radius = null;
-
-  const BohrJournalImage.round({
-    super.key,
-    required double this.radius,
-    required this.name,
-    required this.src,
-  })  : width = radius * 2,
-        height = radius * 2;
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(44),
-      child: Image.network(
-        src,
-        height: 28,
-        width: 28,
-        errorBuilder: (context, error, stackTrace) => _fallback,
-      ),
-    );
-  }
-}
-
 class PaperTitle extends StatelessWidget {
-  /// tight style
-  static const _style1 = TextStyle(
+  static const _style = TextStyle(
     color: AppColors.grey10,
     fontSize: 16,
     fontFamily: AppFonts.merriweather,
@@ -130,48 +13,27 @@ class PaperTitle extends StatelessWidget {
     height: 22 / 16,
   );
 
-  /// normal style
-  static const _style2 = TextStyle(
-    color: AppColors.grey10,
-    fontSize: 18,
-    fontFamily: AppFonts.merriweather,
-    fontWeight: FontWeight.w700,
-    height: 24 / 18,
-  );
-
   final String source;
   final String translation;
   final int sourceMaxLines;
   final int translationMaxLines;
 
-  final bool tight;
-
   const PaperTitle({
-    super.key,
-    required this.source,
-    required this.translation,
-    this.sourceMaxLines = 6,
-    this.translationMaxLines = 4,
-  }) : tight = false;
-
-  const PaperTitle.tight({
     super.key,
     required this.source,
     required this.translation,
     this.sourceMaxLines = 4,
     this.translationMaxLines = 2,
-  }) : tight = true;
+  });
 
   @override
   Widget build(BuildContext context) {
     final sourceWidget = BadKatex(
       raw: source,
-      style: tight ? _style1 : _style2,
+      style: _style,
       maxLines: sourceMaxLines,
     );
-
-    // if (I18nImpl.isEn || translation.isEmpty) return sourceWidget;
-
+    if (translation.isEmpty) return sourceWidget;
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
