@@ -49,7 +49,7 @@ class _PhantomRootPageState extends State<PhantomRootPage> {
       'avatarUrl':
           'https://dp-storage-test2.oss-cn-zhangjiakou.aliyuncs.com/bohrium-test/article/112233/0cea4efc22204a26ad03a0c774d4ba38/9f1a57df-5192-4475-9a6a-1ac913752cfd.jpg',
       'languageType': 0,
-      'publicationEnName': 'Example Journal',
+      'publicationEnName': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
       'publicationCover': 'https://example.com/cover.jpg',
       'enName':
           'Example Paper TitleExample Paper TitleExample Paper TitleExample Paper TitleExample Paper TitleExample Paper TitleExample Paper TitleExample Paper TitleExample Paper TitleExample Paper TitleExample Paper Title',

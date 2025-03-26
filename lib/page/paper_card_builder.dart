@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:ui' as ui;
 import 'package:bad_fl/bad_fl.dart';
+import 'package:fl_web/log.dart';
 import 'package:fl_web/page/paper/color.dart';
 import 'package:fl_web/page/paper/prefab.dart';
 import 'package:flutter/foundation.dart';
@@ -40,7 +41,6 @@ class _PaperCardBuilderState extends State<PaperCardBuilderPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final args = ModalRoute.of(context)?.settings.arguments;
-    print('args is$args');
     if (args != null && args is Map) {
       _shareInfo = SharePaperDTO.fromJson(Map<String, dynamic>.from(args));
       _isChinese = _shareInfo.languageType == 0;
@@ -50,7 +50,7 @@ class _PaperCardBuilderState extends State<PaperCardBuilderPage> {
   }
 
   Future<Uint8List> get u8list async {
-    final image = _cc.capture();
+    final image = _cc.capture(4);
     final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
     final Uint8List buffer = byteData!.buffer.asUint8List();
     return buffer;
@@ -70,7 +70,7 @@ class _PaperCardBuilderState extends State<PaperCardBuilderPage> {
       await completer.future;
       return true;
     } catch (e) {
-      print('Failed to load avatar: $e');
+      LogImpl.error('Failed to load avatar $e');
       return false;
     }
   }
@@ -89,7 +89,7 @@ class _PaperCardBuilderState extends State<PaperCardBuilderPage> {
       await completer.future;
       return true;
     } catch (e) {
-      print('Failed to load publication cover: $e');
+      LogImpl.error('Failed to load publication cover: $e');
       return false;
     }
   }
@@ -350,6 +350,11 @@ class _PaperCardBuilderState extends State<PaperCardBuilderPage> {
     );
   }
 
+  void _onReady() async {
+    // Navigator.of(context).pop(await u8list);
+    print('ready to capture');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -357,9 +362,9 @@ class _PaperCardBuilderState extends State<PaperCardBuilderPage> {
         future: Future.wait([_loadAvatar(), _loadPublicationCover()]),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            print('network image loaded');
-            Navigator.of(context).pop(u8list);
+            _onReady();
           }
+
           return ListView(
             children: [
               UnconstrainedBox(
@@ -387,20 +392,6 @@ class _PaperCardBuilderState extends State<PaperCardBuilderPage> {
                     child: _buildColumn(),
                   ),
                 ),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  // Navigator.of(context);
-                  final args = ModalRoute.of(context)?.settings.arguments;
-                  print('$args');
-                },
-                child: const Text('print received args'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pop(u8list);
-                },
-                child: const Text('back with sample data'),
               ),
             ],
           );
