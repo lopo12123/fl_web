@@ -20,33 +20,31 @@ class _PaperCardBuilderState extends State<PaperCardBuilderPage> {
   late SharePaperDTO _shareInfo;
   late ImageProvider _avatarImage;
   late ImageProvider _publishImage;
-  bool _isChinese = false;
   bool _showAiSum = false;
 
-  get scientistStr => _isChinese ? '科学家' : 'Scientist';
+  get scientistStr => _shareInfo.useEn ? 'Scientist' : '科学家';
 
-  get sharePaperStr => _isChinese ? '分享了一篇文献' : 'Shared a literature article';
+  get sharePaperStr =>
+      _shareInfo.useEn ? 'Shared a literature article' : '分享了一篇文献';
 
-  get scanStr => _isChinese ? '扫一扫\n查看文献详情' : 'Scan\nView Document\nDetails';
+  get scanStr =>
+      _shareInfo.useEn ? 'Scan\nView Document\nDetails' : '扫一扫\n查看文献详情';
 
-  get researchDirectionStr => _isChinese ? '研究方向' : 'Research Direction';
+  get researchDirectionStr => _shareInfo.useEn ? 'Research Direction' : '研究方向';
 
-  get sumStr => _isChinese ? '总结' : 'Summary';
+  get sumStr => _shareInfo.useEn ? 'Summary' : '总结';
 
-  get introductionStr => _isChinese ? '简介' : 'Introduction';
+  get introductionStr => _shareInfo.useEn ? 'Introduction' : '简介';
 
-  get referenceStr => _isChinese ? '摘要' : 'Abstract';
+  get referenceStr => _shareInfo.useEn ? 'Abstract' : '摘要';
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final args = ModalRoute.of(context)?.settings.arguments;
-    LogImpl.log('args is$args');
     if (args != null && args is Map) {
       _shareInfo = SharePaperDTO.fromJson(Map<String, dynamic>.from(args));
-      _isChinese = _shareInfo.languageType == 0;
       _showAiSum = _shareInfo.summary.isNotEmpty;
-      _showAiSum = true;
     }
   }
 
@@ -134,7 +132,7 @@ class _PaperCardBuilderState extends State<PaperCardBuilderPage> {
           ]
         : [
             BadText(
-              _isChinese ? _shareInfo.zhAbstract : _shareInfo.enAbstract,
+              _shareInfo.useEn ? _shareInfo.zhAbstract : _shareInfo.enAbstract,
               fontWeight: FontWeight.w400,
               maxLines: 10,
               fontSize: 14,
@@ -314,9 +312,9 @@ class _PaperCardBuilderState extends State<PaperCardBuilderPage> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Image.asset(
-              _isChinese
-                  ? 'assets/image/logo_zh.png'
-                  : 'assets/image/logo_en.png',
+              _shareInfo.useEn
+                  ? 'assets/image/logo_en.png'
+                  : 'assets/image/logo_zh.png',
               height: 28,
               isAntiAlias: true,
             ),

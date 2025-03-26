@@ -1,4 +1,5 @@
 class SharePaperDTO {
+  final bool useEn;
   final String userName;
   final String avatarUrl;
   final int popularity;
@@ -10,7 +11,6 @@ class SharePaperDTO {
   final String zhAbstract;
   final List<String> authors;
   final String coverDateStart;
-  final int languageType;
   final num impactFactor;
   final int citationNums;
   final String summary;
@@ -18,6 +18,7 @@ class SharePaperDTO {
 
   SharePaperDTO.fromJson(Map<String, dynamic> json)
       : userName = json['userName'],
+        useEn = json['useEn'] ?? false,
         avatarUrl = json['avatarUrl'],
         popularity = json['popularity'],
         publicationEnName = json['publicationEnName'],
@@ -29,7 +30,6 @@ class SharePaperDTO {
         authors =
             List.from(json['authors'].where((e) => (e as String).isNotEmpty)),
         coverDateStart = json['coverDateStart'],
-        languageType = json['languageType'],
         impactFactor = json['impactFactor'] ?? 0,
         citationNums = json['citationNums'],
         summary = json['summary'],

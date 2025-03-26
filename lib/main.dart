@@ -21,7 +21,11 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(useMaterial3: true),
       routes: {
-        'paper-card-builder': (_) => const PaperCardBuilderPage(),
+        'paper-card-builder': (context) {
+          final args = ModalRoute.of(context)!.settings.arguments;
+          // return const PaperCardBuilderPage();
+          return Text('xxx');
+        },
       },
       home: const PhantomRootPage(),
     );
