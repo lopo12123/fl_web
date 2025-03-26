@@ -350,7 +350,7 @@ class _PaperCardBuilderState extends State<PaperCardBuilderPage> {
 
   void _onReady() async {
     // Navigator.of(context).pop(await u8list);
-    print('ready to capture');
+    LogImpl.log('ready to capture');
   }
 
   @override
